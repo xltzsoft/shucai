@@ -1,0 +1,97 @@
+T1CF0 000:717.312   SEGGER J-Link V8.80 Log File
+T1CF0 000:717.560   DLL Compiled: Oct 22 2025 11:56:02
+T1CF0 000:717.578   Logging started @ 2025-10-29 07:44
+T1CF0 000:717.594   Process: D:\0-tool\keil\UV4\UV4.exe
+T1CF0 000:717.619 - 717.609ms 
+T1CF0 000:717.641 JLINK_SetWarnOutHandler(...)
+T1CF0 000:717.657 - 0.018ms 
+T1CF0 000:717.678 JLINK_OpenEx(...)
+T1CF0 000:728.401   Firmware: J-Link V9 compiled May  7 2021 16:26:12
+T1CF0 000:730.317   Firmware: J-Link V9 compiled May  7 2021 16:26:12
+T1CF0 000:730.503   Decompressing FW timestamp took 129 us
+T1CF0 000:738.921   Hardware: V9.20
+T1CF0 000:738.958   S/N: 4294967295
+T1CF0 000:738.982   OEM: SEGGER
+T1CF0 000:739.006   Feature(s): RDI, GDB, FlashDL, FlashBP, JFlash
+T1CF0 000:740.716   Bootloader: (FW returned invalid version)
+T1CF0 000:742.876   TELNET listener socket opened on port 19021
+T1CF0 000:743.134   WEBSRV WEBSRV_Init(): Starting webserver thread(s)
+T1CF0 000:743.441   WEBSRV Webserver running on local port 19080
+T1CF0 000:743.621   Looking for J-Link GUI Server exe at: D:\0-tool\keil\ARM\Segger\JLinkGUIServer.exe
+T1CF0 000:743.794   Looking for J-Link GUI Server exe at: C:\Program Files\SEGGER\JLink_V880\JLinkGUIServer.exe
+T1CF0 000:743.848   Forking J-Link GUI Server: C:\Program Files\SEGGER\JLink_V880\JLinkGUIServer.exe
+T1CF0 000:859.178   J-Link GUI Server info: "J-Link GUI server V8.80 "
+T1CF0 000:861.180 - 143.498ms returns "O.K."
+T1CF0 000:861.216 JLINK_GetEmuCaps()
+T1CF0 000:861.237 - 0.017ms returns 0xB9FF7BBF
+T1CF0 000:861.256 JLINK_TIF_GetAvailable(...)
+T1CF0 000:861.612 - 0.356ms 
+T1CF0 000:861.641 JLINK_SetErrorOutHandler(...)
+T1CF0 000:861.659 - 0.017ms 
+T1CF0 000:861.702 JLINK_ExecCommand("ProjectFile = "D:\1-CODE\7-有线节点\APM32F4xx_DAL_SDK_V1.2.1\Examples\Board_APM32F402_Tiny\I2C\I2C_TwoBoardsPolling\Project\MDK\JLinkSettings.ini"", ...). 
+T1CF0 000:874.744   Ref file found at: D:\0-tool\keil\ARM\Segger\JLinkDevices.ref
+T1CF0 000:874.967   REF file references invalid XML file: C:\Program Files\SEGGER\JLink_V880\JLinkDevices.xml
+T1CF0 000:876.107 - 14.409ms returns 0x00
+T1CF0 000:877.600 JLINK_ExecCommand("Device = APM32F402RB", ...). 
+T1CF0 000:878.248   Flash bank @ 0x08000000: SFL: Parsing sectorization info from ELF file
+T1CF0 000:878.278     FlashDevice.SectorInfo[0]: .SectorSize = 0x00000400, .SectorStartAddr = 0x00000000
+T1CF0 000:878.302   FlashBank @0x08000000: Sectorization info from SFL ELF file ignored because sectorization override from DLL / XML file is active.
+T1CF0 000:878.379   Flash bank @ 0x1FFFC000: SFL: Parsing sectorization info from ELF file
+T1CF0 000:878.405     FlashDevice.SectorInfo[0]: .SectorSize = 0x00000010, .SectorStartAddr = 0x00000000
+T1CF0 000:879.592   Device "APM32F402RB" selected.
+T1CF0 000:880.130 - 2.501ms returns 0x00
+T1CF0 000:880.156 JLINK_ExecCommand("DisableConnectionTimeout", ...). 
+T1CF0 000:880.182   ERROR: Unknown command
+T1CF0 000:880.207 - 0.032ms returns 0x01
+T1CF0 000:880.225 JLINK_GetHardwareVersion()
+T1CF0 000:880.241 - 0.015ms returns 92000
+T1CF0 000:880.258 JLINK_GetDLLVersion()
+T1CF0 000:880.274 - 0.015ms returns 88000
+T1CF0 000:880.292 JLINK_GetOEMString(...)
+T1CF0 000:880.312 JLINK_GetFirmwareString(...)
+T1CF0 000:880.329 - 0.018ms 
+T1CF0 000:884.122 JLINK_GetDLLVersion()
+T1CF0 000:884.151 - 0.028ms returns 88000
+T1CF0 000:884.168 JLINK_GetCompileDateTime()
+T1CF0 000:884.184 - 0.015ms 
+T1CF0 000:885.331 JLINK_GetFirmwareString(...)
+T1CF0 000:885.355 - 0.023ms 
+T1CF0 000:886.499 JLINK_GetHardwareVersion()
+T1CF0 000:886.522 - 0.023ms returns 92000
+T1CF0 000:887.868 JLINK_GetSN()
+T1CF0 000:887.896 - 0.027ms returns -1
+T1CF0 000:887.914 JLINK_GetOEMString(...)
+T1CF0 000:890.313 JLINK_TIF_Select(JLINKARM_TIF_SWD)
+T1CF0 000:892.043 - 1.733ms returns 0x00
+T1CF0 000:892.071 JLINK_HasError()
+T1CF0 000:892.096 JLINK_SetSpeed(5000)
+T1CF0 000:892.427 - 0.330ms 
+T1CF0 000:892.453 JLINK_GetId()
+T1CF0 000:894.116   InitTarget() start
+T1CF0 000:894.149    J-Link Script File: Executing InitTarget()
+T1CF0 001:012.916   Check if Flash is read protected.
+T1CF0 001:023.133   
+Flash is read protected.
+T1CF0 001:027.416   Read or Write protection is active in Geehy APM32xx device.
+For Flash programming the device needs to allow memory read.
+T1CF0 001:030.374   Executing default behavior previously saved in the registry.
+T1CF0 001:033.330   Device will be unsecured now.
+T1CF0 001:036.311   Read protection disabled.
+T1CF0 004:588.454   
+  ***** Error: 
+T1CF0 004:588.503   Communication timed out: Requested 8 bytes, received 0 bytes !
+T1CF0 060:894.836   
+  ***** Error: 
+T1CF0 060:895.124   J-Link script file function InitTarget() returned with error code -1
+T1CF0 060:897.984   InitTarget() end - Took 60.0s
+T1CF0 060:899.512   Connect failed. Resetting via Reset pin and trying again.
+T1CF0 060:966.900   InitTarget() start
+T1CF0 060:967.060    J-Link Script File: Executing InitTarget()
+T1CF0 060:974.636   Check if Flash is read protected.
+T1CF0 060:982.228   
+Flash is read protected.
+T1CF0 060:987.756   Read or Write protection is active in Geehy APM32xx device.
+For Flash programming the device needs to allow memory read.
+T1CF0 060:991.148   Executing default behavior previously saved in the registry.
+T1CF0 060:994.028   Device will be unsecured now.
+T1CF0 060:996.852   Read protection disabled.

@@ -1,0 +1,16 @@
+﻿Release Notes for APM32F4xx DAL SDK
+
+Update History
+V1.0.0 / 30-10-2023
+First Release version of APM32F4xx DAL SDK.
+
+V1.1.0 / 05-02-2024
+Add support for APM32F411xx and APM32F465xx series chips.
+
+Add a series of example programs for APM32F407 EVAL board,
+APM32F407 Tiny board, APM32F411 Tiny board and APM32F465 Mini board.
+
+V1.2.0 / 10-01-2025
+Add support for APM32F402/403xx series chips.
+Add a series of example programs for APM32F402 Tiny board and APM32F403 Tiny board.
+Update library instruction APM32F402_403_um.chm.

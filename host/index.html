@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShuCai Sensor Hub</title>
+    <style>
+        /* ===== Reset & Base ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-primary: #0f1117;
+            --bg-secondary: #1a1d27;
+            --bg-card: #1e2132;
+            --bg-input: #252939;
+            --border: #2d3148;
+            --text-primary: #e8eaf0;
+            --text-secondary: #8b8fa3;
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.25);
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --s1-c0: #6366f1;
+            --s1-c1: #8b5cf6;
+            --s1-c2: #a78bfa;
+            --s1-c3: #c4b5fd;
+            --s2-c0: #06b6d4;
+            --s2-c1: #22d3ee;
+            --s2-c2: #67e8f9;
+            --s2-c3: #a5f3fc;
+            --radius: 12px;
+            --transition: 0.2s ease;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== Header ===== */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition);
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+            background: var(--bg-card);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .btn.primary:hover {
+            background: #5558e6;
+        }
+
+        .btn.danger {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: #fff;
+        }
+
+        .btn.danger:hover {
+            background: #dc2626;
+        }
+
+        .btn.success {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .divider {
+            width: 1px;
+            height: 28px;
+            background: var(--border);
+            margin: 0 4px;
+        }
+
+        /* ===== Main Layout ===== */
+        .main {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: 1fr auto;
+            gap: 16px;
+            padding: 16px 24px;
+            height: calc(100vh - 61px);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        /* ===== Angle Gauge ===== */
+        .gauge-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .gauge-container {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: 8px 0;
+        }
+
+        #gaugeCanvas {
+            width: 220px;
+            height: 220px;
+        }
+
+        .angle-value {
+            font-size: 36px;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 12px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .angle-raw {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        /* ===== Data Values ===== */
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .data-item {
+            background: var(--bg-input);
+            border-radius: 8px;
+            padding: 8px 10px;
+            text-align: center;
+        }
+
+        .data-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-value {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 2px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ===== Chart Panel ===== */
+        .chart-panel {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .chart-wrapper {
+            flex: 1;
+            position: relative;
+            min-height: 0;
+        }
+
+        #chartCanvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .legend {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: opacity var(--transition);
+        }
+
+        .legend-item:hover {
+            color: var(--text-primary);
+        }
+
+        .legend-item.hidden {
+            opacity: 0.3;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ===== Status Bar ===== */
+        .statusbar {
+            grid-column: 1 / -1;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--danger);
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .status-dot.connected {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        .stat {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat b {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* ===== Scrollbar ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        /* ===== No Serial API warning ===== */
+        .no-serial-warning {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            border: 1px solid var(--warning);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            max-width: 400px;
+            z-index: 100;
+        }
+
+        .no-serial-warning h2 {
+            color: var(--warning);
+            margin-bottom: 12px;
+        }
+
+        .no-serial-warning p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- No Serial API Warning -->
+    <div class="no-serial-warning" id="noSerialWarning" style="display:none">
+        <h2>⚠ Browser Not Supported</h2>
+        <p>Web Serial API is required.<br>Please use <b>Chrome 89+</b> or <b>Edge 89+</b>.</p>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>⚡ ShuCai Sensor Hub</h1>
+        <div class="controls">
+            <button class="btn primary" id="btnConnect" onclick="connectSerial()">Connect</button>
+            <button class="btn danger" id="btnDisconnect" onclick="disconnectSerial()" disabled>Disconnect</button>
+            <div class="divider"></div>
+            <button class="btn" id="btnCaliS1" onclick="sendCommand(0x10,0)" disabled>Cali S1</button>
+            <button class="btn" id="btnCaliS2" onclick="sendCommand(0x11,0)" disabled>Cali S2</button>
+            <button class="btn" id="btnCaliAll" onclick="sendCommand(0x12,0)" disabled>Cali All</button>
+            <div class="divider"></div>
+            <button class="btn success" id="btnStartStop" onclick="toggleStream()" disabled>Stop</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+        <!-- Left: Angle Gauge -->
+        <div class="card gauge-panel">
+            <div class="card-title">Angle</div>
+            <div class="gauge-container">
+                <canvas id="gaugeCanvas" width="440" height="440"></canvas>
+            </div>
+            <div class="angle-value" id="angleValue">0.00°</div>
+            <div class="angle-raw" id="angleRaw">Raw: 0</div>
+
+            <div class="data-grid" id="dataGrid">
+                <div class="data-item">
+                    <div class="data-label" style="color:var(--s1-c0)">S1 CH0</div>
+                    <div class="data-value" id="v_s1c0">0</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label" style="color:var(--s1-c1)">S1 CH1</div>
+                    <div class="data-value" id="v_s1c1">0</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label" style="color:var(--s1-c2)">S1 CH2</div>
+                    <div class="data-value" id="v_s1c2">0</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label" style="color:var(--s1-c3)">S1 CH3</div>
+                    <div class="data-value" id="v_s1c3">0</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label" style="color:var(--s2-c0)">S2 CH0</div>
+                    <div class="data-value" id="v_s2c0">0</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label" style="color:var(--s2-c1)">S2 CH1</div>
+                    <div class="data-value" id="v_s2c1">0</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label" style="color:var(--s2-c2)">S2 CH2</div>
+                    <div class="data-value" id="v_s2c2">0</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label" style="color:var(--s2-c3)">S2 CH3</div>
+                    <div class="data-value" id="v_s2c3">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Pressure Chart -->
+        <div class="card chart-panel">
+            <div class="card-title">Pressure Curves</div>
+            <div class="chart-wrapper">
+                <canvas id="chartCanvas"></canvas>
+            </div>
+            <div class="legend" id="legend"></div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="statusbar">
+            <span><span class="status-dot" id="statusDot"></span><span id="statusText">Disconnected</span></span>
+            <span class="stat">Frames: <b id="statFrames">0</b></span>
+            <span class="stat">Rate: <b id="statRate">0</b> Hz</span>
+            <span class="stat">Errors: <b id="statErrors">0</b></span>
+            <span class="stat">Seq: <b id="statSeq">0</b></span>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // Constants
+        // ============================================================
+        const BAUD_RATE = 921600;
+        const FRAME_HEADER = [0xAA, 0x55];
+        const FRAME_LEN = 43;
+        const MAX_POINTS = 1500; // ~5 seconds at 300Hz
+        const CHANNEL_COLORS = [
+            '#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd',
+            '#06b6d4', '#22d3ee', '#67e8f9', '#a5f3fc'
+        ];
+        const CHANNEL_NAMES = [
+            'S1 CH0', 'S1 CH1', 'S1 CH2', 'S1 CH3',
+            'S2 CH0', 'S2 CH1', 'S2 CH2', 'S2 CH3'
+        ];
+
+        // ============================================================
+        // State
+        // ============================================================
+        let port = null;
+        let reader = null;
+        let writer = null;
+        let isConnected = false;
+        let isStreaming = true;
+
+        // Stats
+        let frameCount = 0;
+        let errorCount = 0;
+        let lastSeq = 0;
+        let rateFrames = 0;
+        let lastRateTime = performance.now();
+
+        // Data
+        let currentAngleRaw = 0;
+        let currentAngleDeg = 0;
+        let currentPressure = new Int32Array(8);
+        let chartData = [];
+        for (let i = 0; i < 8; i++) chartData.push([]);
+        let channelVisible = new Array(8).fill(true);
+
+        // Parser state
+        let rxBuffer = [];
+
+        // ============================================================
+        // Check Web Serial API support
+        // ============================================================
+        if (!('serial' in navigator)) {
+            document.getElementById('noSerialWarning').style.display = 'block';
+        }
+
+        // ============================================================
+        // Serial Connection
+        // ============================================================
+        async function connectSerial() {
+            try {
+                port = await navigator.serial.requestPort();
+                await port.open({ baudRate: BAUD_RATE });
+
+                const textEncoder = new TextEncoderStream();
+                writer = port.writable;
+
+                isConnected = true;
+                updateUI();
+                readLoop();
+            } catch (e) {
+                console.error('Connect error:', e);
+            }
+        }
+
+        async function disconnectSerial() {
+            isConnected = false;
+            try {
+                if (reader) {
+                    await reader.cancel();
+                    reader = null;
+                }
+                if (port) {
+                    await port.close();
+                    port = null;
+                }
+            } catch (e) {
+                console.error('Disconnect error:', e);
+            }
+            updateUI();
+        }
+
+        async function readLoop() {
+            while (port && port.readable && isConnected) {
+                reader = port.readable.getReader();
+                try {
+                    while (true) {
+                        const { value, done } = await reader.read();
+                        if (done) break;
+                        if (value) processBytes(value);
+                    }
+                } catch (e) {
+                    console.error('Read error:', e);
+                } finally {
+                    reader.releaseLock();
+                    reader = null;
+                }
+            }
+        }
+
+        // ============================================================
+        // Binary Frame Parser
+        // ============================================================
+        function processBytes(data) {
+            for (let i = 0; i < data.length; i++) {
+                rxBuffer.push(data[i]);
+
+                // Keep buffer from growing too large
+                if (rxBuffer.length > 256) {
+                    rxBuffer = rxBuffer.slice(-FRAME_LEN);
+                }
+
+                // Try to find and parse frames
+                while (rxBuffer.length >= FRAME_LEN) {
+                    // Look for header
+                    if (rxBuffer[0] !== 0xAA || rxBuffer[1] !== 0x55) {
+                        rxBuffer.shift();
+                        continue;
+                    }
+
+                    if (rxBuffer.length < FRAME_LEN) break;
+
+                    // Extract frame
+                    const frame = rxBuffer.slice(0, FRAME_LEN);
+
+                    // Verify checksum (XOR of bytes [2..41])
+                    let xor = 0;
+                    for (let j = 2; j < 42; j++) xor ^= frame[j];
+
+                    if (xor !== frame[42]) {
+                        errorCount++;
+                        rxBuffer.shift(); // Skip bad header
+                        continue;
+                    }
+
+                    // Parse valid frame
+                    parseFrame(frame);
+                    rxBuffer = rxBuffer.slice(FRAME_LEN);
+                }
+            }
+        }
+
+        function parseFrame(f) {
+            // Sequence (uint32 LE)
+            const seq = f[4] | (f[5] << 8) | (f[6] << 16) | (f[7] << 24);
+            lastSeq = seq >>> 0;
+
+            // Angle (uint16 LE)
+            currentAngleRaw = f[8] | (f[9] << 8);
+            currentAngleDeg = currentAngleRaw * 360.0 / 16384.0;
+
+            // 8 channels of int32 LE pressure
+            for (let ch = 0; ch < 8; ch++) {
+                const off = 10 + ch * 4;
+                let v = f[off] | (f[off + 1] << 8) | (f[off + 2] << 16) | (f[off + 3] << 24);
+                // Sign extend
+                if (v > 0x7FFFFFFF) v -= 0x100000000;
+                currentPressure[ch] = v;
+
+                // Append to chart data
+                chartData[ch].push(v);
+                if (chartData[ch].length > MAX_POINTS) chartData[ch].shift();
+            }
+
+            frameCount++;
+            rateFrames++;
+        }
+
+        // ============================================================
+        // Send Command to ESP32
+        // ============================================================
+        async function sendCommand(cmd, param) {
+            if (!port || !port.writable) return;
+
+            const frame = new Uint8Array(6);
+            frame[0] = 0xAA;
+            frame[1] = 0x55;
+            frame[2] = 0x04; // length
+            frame[3] = cmd;
+            frame[4] = param;
+            frame[5] = frame[2] ^ frame[3] ^ frame[4]; // XOR checksum
+
+            const w = port.writable.getWriter();
+            try {
+                await w.write(frame);
+            } finally {
+                w.releaseLock();
+            }
+        }
+
+        function toggleStream() {
+            isStreaming = !isStreaming;
+            sendCommand(0x20, isStreaming ? 1 : 0);
+            document.getElementById('btnStartStop').textContent = isStreaming ? 'Stop' : 'Start';
+            document.getElementById('btnStartStop').className = isStreaming ? 'btn success' : 'btn primary';
+        }
+
+        // ============================================================
+        // UI Update
+        // ============================================================
+        function updateUI() {
+            const dot = document.getElementById('statusDot');
+            const txt = document.getElementById('statusText');
+            const btnConn = document.getElementById('btnConnect');
+            const btnDisc = document.getElementById('btnDisconnect');
+
+            if (isConnected) {
+                dot.classList.add('connected');
+                txt.textContent = 'Connected';
+                btnConn.disabled = true;
+                btnDisc.disabled = false;
+                document.getElementById('btnCaliS1').disabled = false;
+                document.getElementById('btnCaliS2').disabled = false;
+                document.getElementById('btnCaliAll').disabled = false;
+                document.getElementById('btnStartStop').disabled = false;
+            } else {
+                dot.classList.remove('connected');
+                txt.textContent = 'Disconnected';
+                btnConn.disabled = false;
+                btnDisc.disabled = true;
+                document.getElementById('btnCaliS1').disabled = true;
+                document.getElementById('btnCaliS2').disabled = true;
+                document.getElementById('btnCaliAll').disabled = true;
+                document.getElementById('btnStartStop').disabled = true;
+            }
+        }
+
+        // ============================================================
+        // Angle Gauge (Canvas)
+        // ============================================================
+        const gaugeCanvas = document.getElementById('gaugeCanvas');
+        const gaugeCtx = gaugeCanvas.getContext('2d');
+
+        function drawGauge(angleDeg) {
+            const w = gaugeCanvas.width;
+            const h = gaugeCanvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+            const r = Math.min(cx, cy) - 20;
+
+            gaugeCtx.clearRect(0, 0, w, h);
+
+            // Outer ring
+            gaugeCtx.beginPath();
+            gaugeCtx.arc(cx, cy, r, 0, Math.PI * 2);
+            gaugeCtx.strokeStyle = '#2d3148';
+            gaugeCtx.lineWidth = 8;
+            gaugeCtx.stroke();
+
+            // Arc trail (accent gradient)
+            const startAngle = -Math.PI / 2;
+            const endAngle = startAngle + (angleDeg / 360) * Math.PI * 2;
+            const gradient = gaugeCtx.createConicGradient(startAngle, cx, cy);
+            gradient.addColorStop(0, '#6366f1');
+            gradient.addColorStop(0.5, '#a78bfa');
+            gradient.addColorStop(1, '#6366f1');
+
+            gaugeCtx.beginPath();
+            gaugeCtx.arc(cx, cy, r, startAngle, endAngle);
+            gaugeCtx.strokeStyle = gradient;
+            gaugeCtx.lineWidth = 8;
+            gaugeCtx.lineCap = 'round';
+            gaugeCtx.stroke();
+
+            // Tick marks
+            for (let deg = 0; deg < 360; deg += 30) {
+                const rad = (deg - 90) * Math.PI / 180;
+                const isMajor = deg % 90 === 0;
+                const len = isMajor ? 16 : 8;
+                const x1 = cx + (r - 16) * Math.cos(rad);
+                const y1 = cy + (r - 16) * Math.sin(rad);
+                const x2 = cx + (r - 16 - len) * Math.cos(rad);
+                const y2 = cy + (r - 16 - len) * Math.sin(rad);
+
+                gaugeCtx.beginPath();
+                gaugeCtx.moveTo(x1, y1);
+                gaugeCtx.lineTo(x2, y2);
+                gaugeCtx.strokeStyle = isMajor ? '#8b8fa3' : '#3d4160';
+                gaugeCtx.lineWidth = isMajor ? 2.5 : 1.5;
+                gaugeCtx.lineCap = 'round';
+                gaugeCtx.stroke();
+
+                // Labels for major ticks
+                if (isMajor) {
+                    const lx = cx + (r - 48) * Math.cos(rad);
+                    const ly = cy + (r - 48) * Math.sin(rad);
+                    gaugeCtx.font = '600 22px Inter, sans-serif';
+                    gaugeCtx.fillStyle = '#8b8fa3';
+                    gaugeCtx.textAlign = 'center';
+                    gaugeCtx.textBaseline = 'middle';
+                    gaugeCtx.fillText(deg + '°', lx, ly);
+                }
+            }
+
+            // Needle
+            const needleAngle = (angleDeg - 90) * Math.PI / 180;
+            const needleLen = r - 55;
+
+            // Needle shadow/glow
+            gaugeCtx.save();
+            gaugeCtx.shadowColor = 'rgba(99, 102, 241, 0.5)';
+            gaugeCtx.shadowBlur = 12;
+
+            gaugeCtx.beginPath();
+            gaugeCtx.moveTo(cx, cy);
+            gaugeCtx.lineTo(
+                cx + needleLen * Math.cos(needleAngle),
+                cy + needleLen * Math.sin(needleAngle)
+            );
+            gaugeCtx.strokeStyle = '#6366f1';
+            gaugeCtx.lineWidth = 4;
+            gaugeCtx.lineCap = 'round';
+            gaugeCtx.stroke();
+            gaugeCtx.restore();
+
+            // Center dot
+            gaugeCtx.beginPath();
+            gaugeCtx.arc(cx, cy, 8, 0, Math.PI * 2);
+            gaugeCtx.fillStyle = '#6366f1';
+            gaugeCtx.fill();
+
+            gaugeCtx.beginPath();
+            gaugeCtx.arc(cx, cy, 4, 0, Math.PI * 2);
+            gaugeCtx.fillStyle = '#e8eaf0';
+            gaugeCtx.fill();
+        }
+
+        // ============================================================
+        // Pressure Chart (Custom Canvas — lightweight, no library)
+        // ============================================================
+        const chartCanvas = document.getElementById('chartCanvas');
+        const chartCtx = chartCanvas.getContext('2d');
+
+        function drawChart() {
+            const rect = chartCanvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            const w = rect.width;
+            const h = rect.height;
+
+            chartCanvas.width = w * dpr;
+            chartCanvas.height = h * dpr;
+            chartCanvas.style.width = w + 'px';
+            chartCanvas.style.height = h + 'px';
+            chartCtx.scale(dpr, dpr);
+
+            const padL = 60, padR = 16, padT = 12, padB = 24;
+            const plotW = w - padL - padR;
+            const plotH = h - padT - padB;
+
+            // Clear
+            chartCtx.clearRect(0, 0, w, h);
+
+            // Find Y range across all visible channels
+            let yMin = Infinity, yMax = -Infinity;
+            for (let ch = 0; ch < 8; ch++) {
+                if (!channelVisible[ch]) continue;
+                for (let i = 0; i < chartData[ch].length; i++) {
+                    const v = chartData[ch][i];
+                    if (v < yMin) yMin = v;
+                    if (v > yMax) yMax = v;
+                }
+            }
+
+            if (!isFinite(yMin) || !isFinite(yMax) || yMin === yMax) {
+                yMin = -100;
+                yMax = 100;
+            }
+
+            // Add 10% padding
+            const yRange = yMax - yMin;
+            yMin -= yRange * 0.1;
+            yMax += yRange * 0.1;
+
+            // Grid lines
+            chartCtx.strokeStyle = '#1e2132';
+            chartCtx.lineWidth = 1;
+            const gridLines = 5;
+            for (let i = 0; i <= gridLines; i++) {
+                const y = padT + (i / gridLines) * plotH;
+                chartCtx.beginPath();
+                chartCtx.moveTo(padL, y);
+                chartCtx.lineTo(padL + plotW, y);
+                chartCtx.stroke();
+
+                // Y-axis labels
+                const val = yMax - (i / gridLines) * (yMax - yMin);
+                chartCtx.fillStyle = '#5a5e76';
+                chartCtx.font = '11px Inter, sans-serif';
+                chartCtx.textAlign = 'right';
+                chartCtx.textBaseline = 'middle';
+                chartCtx.fillText(formatValue(val), padL - 8, y);
+            }
+
+            // Plot lines
+            const maxLen = Math.max(...chartData.map(d => d.length), 1);
+
+            for (let ch = 0; ch < 8; ch++) {
+                if (!channelVisible[ch]) continue;
+                const data = chartData[ch];
+                if (data.length < 2) continue;
+
+                chartCtx.beginPath();
+                chartCtx.strokeStyle = CHANNEL_COLORS[ch];
+                chartCtx.lineWidth = 1.5;
+                chartCtx.lineJoin = 'round';
+
+                for (let i = 0; i < data.length; i++) {
+                    const x = padL + (i / (maxLen - 1)) * plotW;
+                    const y = padT + (1 - (data[i] - yMin) / (yMax - yMin)) * plotH;
+                    if (i === 0) chartCtx.moveTo(x, y);
+                    else chartCtx.lineTo(x, y);
+                }
+                chartCtx.stroke();
+            }
+
+            // Plot border
+            chartCtx.strokeStyle = '#2d3148';
+            chartCtx.lineWidth = 1;
+            chartCtx.strokeRect(padL, padT, plotW, plotH);
+        }
+
+        function formatValue(v) {
+            if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(1) + 'M';
+            if (Math.abs(v) >= 1e3) return (v / 1e3).toFixed(1) + 'K';
+            return v.toFixed(0);
+        }
+
+        // ============================================================
+        // Legend
+        // ============================================================
+        function buildLegend() {
+            const container = document.getElementById('legend');
+            container.innerHTML = '';
+            for (let ch = 0; ch < 8; ch++) {
+                const item = document.createElement('div');
+                item.className = 'legend-item' + (channelVisible[ch] ? '' : ' hidden');
+                item.innerHTML = `<span class="legend-dot" style="background:${CHANNEL_COLORS[ch]}"></span>${CHANNEL_NAMES[ch]}`;
+                item.onclick = () => {
+                    channelVisible[ch] = !channelVisible[ch];
+                    item.classList.toggle('hidden');
+                };
+                container.appendChild(item);
+            }
+        }
+
+        // ============================================================
+        // Render Loop (30 FPS for smooth UI)
+        // ============================================================
+        function renderLoop() {
+            // Update angle gauge
+            drawGauge(currentAngleDeg);
+            document.getElementById('angleValue').textContent = currentAngleDeg.toFixed(2) + '°';
+            document.getElementById('angleRaw').textContent = 'Raw: ' + currentAngleRaw;
+
+            // Update pressure values
+            const ids = ['v_s1c0', 'v_s1c1', 'v_s1c2', 'v_s1c3', 'v_s2c0', 'v_s2c1', 'v_s2c2', 'v_s2c3'];
+            for (let i = 0; i < 8; i++) {
+                document.getElementById(ids[i]).textContent = currentPressure[i];
+            }
+
+            // Update chart
+            drawChart();
+
+            // Update stats
+            const now = performance.now();
+            if (now - lastRateTime >= 1000) {
+                const rate = Math.round(rateFrames * 1000 / (now - lastRateTime));
+                document.getElementById('statRate').textContent = rate;
+                rateFrames = 0;
+                lastRateTime = now;
+            }
+            document.getElementById('statFrames').textContent = frameCount;
+            document.getElementById('statErrors').textContent = errorCount;
+            document.getElementById('statSeq').textContent = lastSeq;
+
+            requestAnimationFrame(renderLoop);
+        }
+
+        // ============================================================
+        // Init
+        // ============================================================
+        buildLegend();
+        drawGauge(0);
+        drawChart();
+        requestAnimationFrame(renderLoop);
+    </script>
+</body>
+
+</html>

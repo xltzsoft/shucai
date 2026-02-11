@@ -1,0 +1,64 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: μVision V5.41.0.0
+Copyright (C) 2024 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: A Shane, A, LIC=VGXG8-3T4ND-AR4XW-QZX8K-9NM0H-X5A8R
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Plus  Version: 5.41.0.0
+Toolchain Path:  D:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 7 (build 960)
+Assembler:       Armasm.exe V5.06 update 7 (build 960)
+Linker/Locator:  ArmLink.exe V5.06 update 7 (build 960)
+Library Manager: ArmAr.exe V5.06 update 7 (build 960)
+Hex Converter:   FromElf.exe V5.06 update 7 (build 960)
+CPU DLL:         SARMCM3.DLL V5.41.0.0
+Dialog DLL:      DCM.DLL V1.17.5.0
+Target DLL:      CMSIS_AGDI.dll V1.33.21.0
+Dialog DLL:      TCM.DLL V1.56.4.0
+ 
+<h2>Project:</h2>
+C:\Users\Shane\Desktop\12-fingur_chen_0209\likongjiazhua-0205-4channel-主机直接读取30个字节即可\Examples\Board_APM32F402_Tiny\I2C\I2C_TwoBoardsPolling\Project\MDK\I2C_TwoBoardsPolling.uvprojx
+Project File Date:  02/09/2026
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\Keil_v5\ARM\ARMCC\Bin'
+Build target 'APM32F402'
+compiling main.c...
+..\..\Source\main.c(604): warning:  #223-D: function "abs" declared implicitly
+  			if(abs((float)process_24bit_signed(&buf[2]), pressor[addr]) < 100000)
+..\..\Source\main.c(612): warning:  #223-D: function "abs" declared implicitly
+          if(abs((float)process_24bit_signed(&buf[2]), pressor[addr]) < 100000)
+..\..\Source\main.c(533): warning:  #550-D: variable "conversion_flag"  was set but never used
+      uint8_t conversion_flag = 0;
+..\..\Source\main.c(538): warning:  #177-D: variable "error"  was declared but never referenced
+      uint32_t error=0;
+..\..\Source\main.c(820): warning:  #177-D: variable "total_len"  was declared but never referenced
+      uint8_t total_len = temp_index + pres_index;
+..\..\Source\main.c(1366): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+          (void)DAL_I2C_Slave_Transmit_IT(&hi2c1, pres_buffer, 42);
+..\..\Source\main.c(1399): warning:  #1-D: last line of file ends without a newline
+  }
+..\..\Source\main.c: 7 warnings, 0 errors
+linking...
+Program Size: Code=21928 RO-data=384 RW-data=1776 ZI-data=3816  
+FromELF: creating hex file...
+".\Objects\APM32F402\I2C_TwoBoardsPolling.axf" - 0 Error(s), 7 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: Geehy
+                https://www.geehy.com/uploads/tool/Geehy.APM32F4xx_DFP.1.0.7.pack
+                Geehy::APM32F4xx_DFP@1.0.7
+                Geehy Semiconductor APM32F4 Series Device Support, Drivers and Examples
+
+<h2>Collection of Component include folders:</h2>
+
+<h2>Collection of Component Files used:</h2>
+Build Time Elapsed:  00:00:02
+</pre>
+</body>
+</html>
