@@ -84,9 +84,13 @@ static uint8_t txFrame[DATA_FRAME_TOTAL_LEN];
 static uint8_t rxBuf[8];
 static uint8_t rxIdx = 0;
 
+// Debug mode: print I2C errors for first N frames
+static uint32_t debugCount = 0;
+#define DEBUG_FRAMES  200  // Print debug info for first 200 frames
+
 // Timing
 static unsigned long lastSampleTime = 0;
-#define SAMPLE_INTERVAL_US  1000  // 1ms = 1kHz
+#define SAMPLE_INTERVAL_US  15000  // 15ms (~66Hz) to accommodate I2C delays
 
 // ============================================================
 // I2C Pin Switching (ESP32-C3 has only 1 I2C controller)
@@ -113,7 +117,7 @@ bool switchI2CPins(int sda, int scl)
     bool ok = Wire.begin(sda, scl);
     if (ok) {
         Wire.setClock(I2C_CLOCK_HZ);
-        Wire.setTimeOut(2);  // 2ms timeout
+        Wire.setTimeOut(10);  // 10ms timeout, give slave time to respond
         currentSDA = sda;
         currentSCL = scl;
     } else {
@@ -137,24 +141,45 @@ bool switchI2CPins(int sda, int scl)
 bool readSensor(int sda, int scl, uint8_t *buf)
 {
     // Switch I2C to correct pins
-    if (!switchI2CPins(sda, scl)) return false;
+    if (!switchI2CPins(sda, scl)) {
+        if (debugCount < DEBUG_FRAMES) {
+            Serial.printf("[I2C] switchPins(%d,%d) FAIL\n", sda, scl);
+        }
+        return false;
+    }
 
     // Step 1: Send command 0x55 0xAA
     Wire.beginTransmission(SENSOR_I2C_ADDR);
     Wire.write(SENSOR_CMD_READ_HI);
     Wire.write(SENSOR_CMD_READ_LO);
-    uint8_t err = Wire.endTransmission();
-    if (err != 0) return false;
+    uint8_t err = Wire.endTransmission(true);  // send STOP
+    if (err != 0) {
+        if (debugCount < DEBUG_FRAMES) {
+            // err: 1=too long, 2=NACK addr, 3=NACK data, 4=other, 5=timeout
+            Serial.printf("[I2C] pins(%d,%d) endTransmission err=%d\n", sda, scl, err);
+        }
+        return false;
+    }
 
-    // Small delay for slave to prepare TX buffer
-    delayMicroseconds(100);
+    // Delay for slave to process command and arm TX buffer
+    // Slave needs time: interrupt -> PrepareTxFromLatestFrames -> Slave_Transmit_IT
+    delay(5);  // 5ms - much more generous than 100us
 
     // Step 2: Read response
     uint8_t count = Wire.requestFrom((uint8_t)SENSOR_I2C_ADDR, (uint8_t)SENSOR_RESPONSE_LEN);
-    if (count < SENSOR_RESPONSE_LEN) return false;
+    if (count < SENSOR_RESPONSE_LEN) {
+        if (debugCount < DEBUG_FRAMES) {
+            Serial.printf("[I2C] pins(%d,%d) requestFrom got %d/%d bytes\n", sda, scl, count, SENSOR_RESPONSE_LEN);
+        }
+        return false;
+    }
 
     for (uint8_t i = 0; i < SENSOR_RESPONSE_LEN; i++) {
         buf[i] = Wire.read();
+    }
+
+    if (debugCount < DEBUG_FRAMES) {
+        Serial.printf("[I2C] pins(%d,%d) OK, hdr=%02X %02X\n", sda, scl, buf[0], buf[1]);
     }
     return true;
 }
@@ -368,4 +393,6 @@ void loop()
 
     // Build and send binary data frame to host
     sendDataFrame(rawAngle, pressure1, pressure2);
+
+    debugCount++;
 }
